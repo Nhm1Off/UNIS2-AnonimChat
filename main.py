@@ -3,7 +3,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 import logging
 
 # Ініціалізація бота
-TOKEN = "7411990110:AAHctohfQCALjtkH3hG58snG1kaMNns09k4"
+TOKEN = "7259188365:AAHtCwPszbQtUvkBiZrVrBYDm267V1H23wc"
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
@@ -20,11 +20,11 @@ GENDER, AGE, MENU = range(3)
 
 # Функція старту
 def start(update: Update, context: CallbackContext):
-    keyboard = [["🔍 Знайти співрозмовника"]]
+    keyboard = [["🔍 Найти собеседника"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     update.message.reply_text(
-        "Вітаю! Це анонімний чат. Щоб почати, введіть ваш гендер (чоловік/жінка):",
+        "Привет! Введите свой гендер (м/ж):",
         reply_markup=reply_markup
     )
 
@@ -35,7 +35,7 @@ def set_gender(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     user_data[user_id] = {'gender': update.message.text}  # Зберігаємо гендер
 
-    update.message.reply_text("Введіть ваш вік:")
+    update.message.reply_text("Введите ваш возраст:")
     return AGE
 
 # Збір віку
@@ -45,8 +45,8 @@ def set_age(update: Update, context: CallbackContext):
 
     update.message.reply_text(
         f"Ваш гендер: {user_data[user_id]['gender']}, Ваш вік: {user_data[user_id]['age']}.\n"
-        "Тепер ви готові до спілкування!",
-        reply_markup=ReplyKeyboardMarkup([["🔍 Знайти співрозмовника"], ["❌ Завершити чат"]], resize_keyboard=True)
+        "Теперь вы готовы к общению!",
+        reply_markup=ReplyKeyboardMarkup([["🔍 Найти собеседника"], ["❌ Завершить чат"]], resize_keyboard=True)
     )
 
     return MENU  # Переходить до меню
@@ -57,10 +57,10 @@ def find(update: Update, context: CallbackContext):
 
     if user_id not in chat_queue:
         chat_queue[user_id] = None
-        update.message.reply_text("Шукаємо співрозмовника...")
+        update.message.reply_text("Ищем собеседника...")
         check_for_match(context)
     else:
-        update.message.reply_text("Ви вже в черзі для пошуку.")
+        update.message.reply_text("Вы уже в очереди для поиска.")
 
 # Перевірка наявності пари для чату
 def check_for_match(context: CallbackContext):
@@ -71,8 +71,8 @@ def check_for_match(context: CallbackContext):
         user1_info = user_data[user1]
         user2_info = user_data[user2]
 
-        context.bot.send_message(user1, f"Співрозмовника знайдено! Починайте спілкування.\nВаш гендер: {user1_info['gender']}, Ваш вік: {user1_info['age']}.")
-        context.bot.send_message(user2, f"Співрозмовника знайдено! Починайте спілкування.\nВаш гендер: {user2_info['gender']}, Ваш вік: {user2_info['age']}.")
+        context.bot.send_message(user1, f"Собеседник найден! Начинайте общение.\nВаш гендер: {user1_info['gender']}, Ваш возвраст: {user1_info['age']}.")
+        context.bot.send_message(user2, f"Собеседник найден! Начинайте общение.\nВаш гендер: {user2_info['gender']}, Ваш возвраст: {user2_info['age']}.")
 
         # Встановлюємо пари
         chat_queue[user1] = user2
@@ -90,15 +90,15 @@ def end_chat(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     if user_id in chat_queue:
         partner_id = chat_queue[user_id]
-        context.bot.send_message(partner_id, "Ваш співрозмовник завершив чат.")
-        context.bot.send_message(user_id, "Ви завершили чат.")
+        context.bot.send_message(partner_id, "Ваш собеседник завершил чат.")
+        context.bot.send_message(user_id, "Вы завершили чат.")
         del chat_queue[user_id]
         if partner_id:
             del chat_queue[partner_id]
 
         # Повернення до меню після завершення чату
-        update.message.reply_text("Чат завершено. Ви можете шукати нового співрозмовника.",
-                                  reply_markup=ReplyKeyboardMarkup([["🔍 Знайти співрозмовника"], ["❌ Завершити чат"]], resize_keyboard=True))
+        update.message.reply_text("Чат завершен. Вы можете искать нового собеседника.",
+                                  reply_markup=ReplyKeyboardMarkup([["🔍 Найти собеседника"], ["❌ Завершить чат"]], resize_keyboard=True))
 
 # Реєстрація хендлерів
 conv_handler = ConversationHandler(
@@ -106,8 +106,8 @@ conv_handler = ConversationHandler(
     states={
         GENDER: [MessageHandler(Filters.text, set_gender)],
         AGE: [MessageHandler(Filters.text, set_age)],
-        MENU: [MessageHandler(Filters.regex("🔍 Знайти співрозмовника"), find),
-               MessageHandler(Filters.regex("❌ Завершити чат"), end_chat)]
+        MENU: [MessageHandler(Filters.regex("🔍 Найти собеседника"), find),
+               MessageHandler(Filters.regex("❌ Завершить чат"), end_chat)]
     },
     fallbacks=[]
 )
